@@ -11,36 +11,29 @@ import SwiftUI
 class MasterViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
-    
     let presenter: RepositoryPresenter = DefaultRepositoryPresenter()
+    
     var viewModel: ViewModel {
         presenter.viewModel
     }
-            
+        
     override func viewDidLoad() {
         super.viewDidLoad()
-//        presenter.set(onUpdate: onDataChange)
         presenter.set(dataUpdateReceiver: self)
         presenter.loadData()
         setTitle()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         deselectSelectedRow()
     }
-    
-//    func onDataChange() {
-//        self.title = "\(viewModel.totalCount) Repositories"
-//        print("onDataChange totalCount \(viewModel.totalCount)")
-//        tableView.reloadData()
-//    }
 }
+
 
 // MARK: - Table view data source
 extension MasterViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("Total View Count : \(viewModel.totalCount)")
         return viewModel.totalCount
     }
 
@@ -57,6 +50,7 @@ extension MasterViewController: UITableViewDataSource {
     }
 }
 
+
 // MARK: - Table view delegate
 extension MasterViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -71,6 +65,7 @@ extension MasterViewController: UITableViewDelegate {
     }
 }
 
+
  //MARK: - Table view Prefetching delegate
 extension MasterViewController: UITableViewDataSourcePrefetching {
   func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
@@ -78,11 +73,11 @@ extension MasterViewController: UITableViewDataSourcePrefetching {
   }
 }
 
+
+// MARK: - Data Update Receiver
 extension MasterViewController: DataUpdateReceiver {
-    @MainActor
-    func onUpdate() {
+    @MainActor func onUpdate() {
         setTitle()
-        print("onDataChange totalCount \(viewModel.totalCount)")
         tableView.reloadData()
     }
 }
@@ -100,10 +95,13 @@ private extension MasterViewController {
     }
     
     func setTitle() {
-        if viewModel.totalCount > 0 {
+        switch viewModel.loadingState {
+        case .loading:
+            self.title = "Loading Repositories..."
+        case .failed(_):
+            self.title = "Loading Failed"
+        case .loadingComplete:
             self.title = "GitHub Repositories"
-        } else {
-            self.title = "Repositories Not Loaded"
         }
     }
 }

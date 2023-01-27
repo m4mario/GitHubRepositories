@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetailView: View {
     @ObservedObject var data: RepositoryItemData
-
+    
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading) {
@@ -25,7 +25,7 @@ struct DetailView: View {
                     .cornerRadius(10)
                     .shadow(color: .gray, radius: 3.0, x: 2.0, y: 2.0)
                 }
-                Text("\(data.name ?? "No Name")").font(.title.bold())
+                Text("\(data.name ?? "")").font(.title.bold())
                     .padding(.vertical)
                 Text("\(data.description ?? "")")
                     .padding(.bottom)
@@ -47,7 +47,7 @@ struct DetailView: View {
                     .font(.body)
                     .padding(.bottom)
                 }
-
+                
                 
                 
             }

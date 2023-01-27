@@ -17,26 +17,13 @@ protocol RepositoryPresenter {
     func prefetch(for indexPaths: [IndexPath])
     func loadData()
     func set(dataUpdateReceiver: DataUpdateReceiver)
-//    func set(onUpdate: @escaping () -> Void)
 }
 
 @MainActor
 final class MainPresenter: RepositoryPresenter {
-    nonisolated func set(dataUpdateReceiver: DataUpdateReceiver) {
-        Task {
-            await setdataUpdateReceiver(to: dataUpdateReceiver)
-        }
-    }
-    
-//    nonisolated func set(onUpdate: @escaping () -> Void) {
-//        Task {
-//            await setOnUpdate(to: onUpdate)
-//        }
-//    }
     
     let viewModel = ViewModel()
     let modelInteractor = ModelInteractor()
-//    var onUpdate: (() -> Void)?
     var dataUpdateReceiver: DataUpdateReceiver?
     
     nonisolated func loadData() {
@@ -45,39 +32,35 @@ final class MainPresenter: RepositoryPresenter {
                 try await modelInteractor.fetchInitialData(into: viewModel)
             }
             catch {
-                print("Error: \(error)")
+                Task {
+                    await initialLoadFailure(error: error)
+                }
             }
             Task {
-                await dataUpdateReceiver?.onUpdate()
+                await initialLoadSuccess()
             }
         }
     }
-   
-//    private func setOnUpdate(to onUpdate: @escaping () -> Void) {
-//        self.onUpdate = onUpdate
-//    }
     
-    private func setdataUpdateReceiver(to dataUpdateReceiver: DataUpdateReceiver) {
-        self.dataUpdateReceiver = dataUpdateReceiver
+    nonisolated func set(dataUpdateReceiver: DataUpdateReceiver) {
+        Task {
+            await setdataUpdateReceiver(to: dataUpdateReceiver)
+        }
     }
 
-    
     func cellData(for indexPath: IndexPath) -> RepositoryItemData {
         let index = indexPath.row
         if viewModel.currentCount > index {
             return viewModel.RepositoryItemData[index]
         }
         populateEmptyData(uptill: index)
-//        print("populated Empty Data uptill \(index), current count \(viewModel.currentCount)")
         return viewModel.RepositoryItemData[index]
     }
     
     nonisolated func prefetch(for indexPaths: [IndexPath]) {
         guard let maxIndex = (indexPaths.map { $0.row }).max() else { return }
-//        print("max index : \(maxIndex)")
         Task {
             guard await viewModel.currentCount < maxIndex else { return }
-            print("populateEmptyData for max index : \(maxIndex)")
             await populateEmptyData(uptill: maxIndex)
         }
     }
@@ -86,7 +69,6 @@ final class MainPresenter: RepositoryPresenter {
 private extension MainPresenter {
     func populateEmptyData(uptill index: Int) {
         let totalRepoCountNeeded = totalItemCount(for: index)
-//        print("totalRepoCountNeeded \(totalRepoCountNeeded)")
         var additionalRepos: [RepositoryItemData] = []
         for i in viewModel.currentCount..<totalRepoCountNeeded {
             additionalRepos.append(RepositoryItemData(rowIndex: i))
@@ -101,17 +83,12 @@ private extension MainPresenter {
                 try await modelInteractor.fetchMoreData(into: viewModel)
             }
             catch {
-                print("Error: \(error)")
+                initialLoadFailure(error: error)
             }
-//            Task {
-//                dataUpdateReceiver?.onUpdate()
-//            }
         }
     }
 
-    
     func totalItemCount(for index: Int) -> Int {
-//        print("totalItemCount for \(index)")
         var total = 0
         var pageCount = 0
         repeat {
@@ -120,4 +97,19 @@ private extension MainPresenter {
         } while total < index
         return total + 1
     }
+    
+     func setdataUpdateReceiver(to dataUpdateReceiver: DataUpdateReceiver) {
+        self.dataUpdateReceiver = dataUpdateReceiver
+    }
+    
+    func initialLoadSuccess() {
+        viewModel.loadingState = .loadingComplete
+        dataUpdateReceiver?.onUpdate()
+    }
+    
+    func initialLoadFailure(error: Error) {
+        viewModel.loadingState = .failed(error)
+        dataUpdateReceiver?.onUpdate()
+    }
+
 }

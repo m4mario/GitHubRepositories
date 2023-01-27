@@ -10,7 +10,6 @@ import Foundation
 enum DataMapper {
     @MainActor
     static func map(dataModel: GitHubGraphQLResponse, to viewModel: ViewModel) {
-        print("RepositoryCount \(dataModel.data?.search.repositoryCount ?? -45)")
         viewModel.totalCount = dataModel.data?.search.repositoryCount ?? 0
         let edges = dataModel.data?.search.edges
         var index = viewModel.endIndex

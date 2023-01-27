@@ -16,6 +16,7 @@ final class ViewModel: ObservableObject {
     }
     var endIndex = -1
     var RepositoryItemData: [RepositoryItemData] = []
+    var loadingState: LoadingState = .loading
     
     var currentCount: Int {
         RepositoryItemData.count
@@ -47,4 +48,10 @@ final class RepositoryItemData: ObservableObject {
         self.authorLogin = authorLogin
         self.isLoadingComplete = isLoadingComplete
     }
+}
+
+enum LoadingState {
+    case loading
+    case failed(Error)
+    case loadingComplete
 }

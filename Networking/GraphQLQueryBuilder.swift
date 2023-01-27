@@ -16,20 +16,12 @@ enum GraphQLQueryBuilder: QueryBuilder {
     static func initialRequest() -> URLRequest {
         let json: [String: Any] = ["query": initialQuery]
         return requestWith(jsonDictionary: json)
-
-//        let jsonData = try! JSONSerialization.data(withJSONObject: json)
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "POST"
-//        request.httpBody = jsonData
-//        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//        return request
     }
 }
 
 private extension GraphQLQueryBuilder {
     static let url = URL(string: "https://api.github.com/graphql")!
-    static let token = "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"
+    static let token = "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"
     
     static func requestWith(jsonDictionary: [String: Any]) -> URLRequest {
         let jsonData = try! JSONSerialization.data(withJSONObject: jsonDictionary)
