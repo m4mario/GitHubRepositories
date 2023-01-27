@@ -21,7 +21,7 @@ enum GraphQLQueryBuilder: QueryBuilder {
 
 private extension GraphQLQueryBuilder {
     static let url = URL(string: "https://api.github.com/graphql")!
-    static let token = "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"
+    static let token = "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"
 
         
     static func requestWith(jsonDictionary: [String: Any]) -> URLRequest {
