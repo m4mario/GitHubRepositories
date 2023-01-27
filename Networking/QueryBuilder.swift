@@ -8,5 +8,6 @@
 import Foundation
 
 protocol QueryBuilder {
-    static func request() -> URLRequest
+    static func initialRequest() -> URLRequest
+    static func moreRequest(after cursor: String) -> URLRequest
 }

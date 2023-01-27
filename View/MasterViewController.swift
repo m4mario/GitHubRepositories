@@ -19,13 +19,22 @@ class MasterViewController: UIViewController {
             
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "\(viewModel.totalCount) Repositories"
+//        presenter.set(onUpdate: onDataChange)
+        presenter.set(dataUpdateReceiver: self)
+        presenter.loadData()
+        setTitle()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         deselectSelectedRow()
     }
+    
+//    func onDataChange() {
+//        self.title = "\(viewModel.totalCount) Repositories"
+//        print("onDataChange totalCount \(viewModel.totalCount)")
+//        tableView.reloadData()
+//    }
 }
 
 // MARK: - Table view data source
@@ -44,7 +53,6 @@ extension MasterViewController: UITableViewDataSource {
                 CellView(data: cellData)
             }
         }
-        
         return cell
     }
 }
@@ -52,7 +60,12 @@ extension MasterViewController: UITableViewDataSource {
 // MARK: - Table view delegate
 extension MasterViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let detailView = DetailView(testString: "Set up successful")
+        guard viewModel.currentCount > indexPath.row else {
+            deselectSelectedRow()
+            return
+        }
+        let data = viewModel.RepositoryItemData[indexPath.row]
+        let detailView = DetailView(data: data)
         let hostingController = UIHostingController(rootView: detailView)
         navigationController?.pushViewController(hostingController, animated: true)
     }
@@ -65,6 +78,16 @@ extension MasterViewController: UITableViewDataSourcePrefetching {
   }
 }
 
+extension MasterViewController: DataUpdateReceiver {
+    @MainActor
+    func onUpdate() {
+        setTitle()
+        print("onDataChange totalCount \(viewModel.totalCount)")
+        tableView.reloadData()
+    }
+}
+
+
 // MARK: - Private Functions
 private extension MasterViewController {
     enum CellIdentifiers {
@@ -75,5 +98,12 @@ private extension MasterViewController {
         guard let indexPath = tableView.indexPathsForSelectedRows?.first else { return }
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func setTitle() {
+        if viewModel.totalCount > 0 {
+            self.title = "GitHub Repositories"
+        } else {
+            self.title = "Repositories Not Loaded"
+        }
+    }
 }
-

@@ -9,31 +9,42 @@ import Foundation
 
 @MainActor
 final class ViewModel: ObservableObject {
-    var totalCount = 1000
-    var startIndex = 0
-    var endIndex = 0
-    var repositoryCellData: [RepositoryCellData] = []
+    var totalCount = 0 {
+        didSet {
+            totalCount = min(totalCount, Defaults.maxRecords)
+        }
+    }
+    var endIndex = -1
+    var RepositoryItemData: [RepositoryItemData] = []
     
     var currentCount: Int {
-        repositoryCellData.count
+        RepositoryItemData.count
     }
 }
 
 @MainActor
-final class RepositoryCellData: ObservableObject {
+final class RepositoryItemData: ObservableObject {
     @Published var name: String?
     @Published var imageURL: String?
+    @Published var description: String?
+    @Published var language: String?
+    @Published var detailImageURL: String?
+    @Published var authorLogin: String?
     @Published var isLoadingComplete: Bool = false
     let rowIndex: Int
-    var repositoryDetailData: RepositoryDetailData = RepositoryDetailData()
     
     init(rowIndex: Int) {
         self.rowIndex = rowIndex
     }
-}
-
-@MainActor
-final class RepositoryDetailData: ObservableObject {
-    @Published var name: String?
-    @Published var imageURL: String?
+    
+    init(rowIndex: Int, name: String?, imageURL: String? = nil, description: String?, language: String?, detailImageURL: String? = nil, authorLogin: String? = nil, isLoadingComplete: Bool) {
+        self.rowIndex = rowIndex
+        self.name = name
+        self.imageURL = imageURL
+        self.description = description
+        self.language = language
+        self.detailImageURL = detailImageURL
+        self.authorLogin = authorLogin
+        self.isLoadingComplete = isLoadingComplete
+    }
 }

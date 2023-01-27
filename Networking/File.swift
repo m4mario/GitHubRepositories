@@ -15,40 +15,19 @@ struct Payload: Codable {
     var query: String
 }
 
-// MARK: - GitHubGraphQLResponse
-struct GitHubGraphQLResponse: Codable {
-    var data: DataClass?
-}
-
-// MARK: - DataClass
-struct DataClass: Codable {
-    var repository: Repository?
-}
-
 // MARK: - Repository
 struct Repository: Codable {
     var stargazerCount: Int?
     var nameWithOwner, name: String?
     var url: String?
     var releases: Releases?
-    var refs: Refs?
+//    var refs: Refs?
 }
 
 // MARK: - Refs
-struct Refs: Codable {
-    var edges: [Edge]?
-}
-
-// MARK: - Edge
-struct Edge: Codable {
-    var node: EdgeNode?
-}
-
-// MARK: - EdgeNode
-struct EdgeNode: Codable {
-    var name: String?
-    var target: Target?
-}
+//struct Refs: Codable {
+//    var edges: [Edge]?
+//}
 
 // MARK: - Target
 struct Target: Codable {
@@ -77,7 +56,7 @@ struct NodeElement: Codable {
 
 func querySpecificRepositoryWithGraphQLQuery() async throws -> GitHubGraphQLResponse {
     let username = "m4mario"
-    let pat = "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"
+    let pat = "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"
     let base64EncodedCredentials = "\(username):\(pat)".data(using: .utf8)!.base64EncodedString()
     
     var request = URLRequest(url: URL(string: "https://api.github.com/graphql")!)
