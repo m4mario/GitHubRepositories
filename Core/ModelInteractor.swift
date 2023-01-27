@@ -35,11 +35,17 @@ actor ModelInteractor {
 private extension ModelInteractor {
     func fetchData(into viewModel: ViewModel, with request: URLRequest) async throws {
         var dataModel: GitHubGraphQLResponse? = nil
-        do {
-            dataModel = try await sharedDataDetcher.fetchRepositories(for: request)
-        } catch {
-            print("Error \(error)")
+        dataModel = try? await sharedDataDetcher.fetchRepositories(for: request)
+        
+        guard dataModel?.data != nil else {
+            throw GitHubError.network
         }
         await mapData(from: dataModel, into: viewModel)
+    }
+    
+    @MainActor
+    func setError(_ error: Error, on viewModel: ViewModel) throws {
+        viewModel.loadingState = .failed(error)
+        throw error
     }
 }

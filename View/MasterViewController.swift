@@ -79,6 +79,9 @@ extension MasterViewController: DataUpdateReceiver {
     @MainActor func onUpdate() {
         setTitle()
         tableView.reloadData()
+        if case let .failed(error) = viewModel.loadingState {
+            presentError(error)
+        }
     }
 }
 
@@ -103,5 +106,11 @@ private extension MasterViewController {
         case .loadingComplete:
             self.title = "GitHub Repositories"
         }
+    }
+    
+    func presentError(_ error: Error) {
+        let alert = UIAlertController(title: "Error", message: "Try generating a new token for authentication.", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }

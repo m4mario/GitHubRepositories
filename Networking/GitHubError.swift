@@ -12,10 +12,10 @@ enum GitHubError: Error {
   case decoding
   case request
   
-  var reason: String {
+  var localizedDescription: String {
     switch self {
     case .network:
-      return "An error occurred while fetching data."
+      return "Error fetching Records. Try with new Token from Code"
     case .decoding:
       return "An error occurred while decoding data."
     case .request:

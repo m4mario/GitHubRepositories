@@ -30,14 +30,12 @@ final class MainPresenter: RepositoryPresenter {
         Task(priority: .userInitiated) {
             do {
                 try await modelInteractor.fetchInitialData(into: viewModel)
+                await initialLoadSuccess()
             }
             catch {
                 Task {
                     await initialLoadFailure(error: error)
                 }
-            }
-            Task {
-                await initialLoadSuccess()
             }
         }
     }
