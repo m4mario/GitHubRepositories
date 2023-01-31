@@ -24,7 +24,7 @@ final class MainPresenter: RepositoryPresenter {
     
     let viewModel = ViewModel()
     let modelInteractor = ModelInteractor()
-    var dataUpdateReceiver: DataUpdateReceiver?
+    weak var dataUpdateReceiver: DataUpdateReceiver?
     
     nonisolated func loadData() {
         Task(priority: .userInitiated) {
